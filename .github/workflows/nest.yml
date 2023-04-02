@@ -6,20 +6,21 @@ on:
     branches: ['master']
 
 jobs:
+  
   deploy:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v3
-        - name: multiple command
-          uses: appleboy/ssh-action@master
-          with:
-            host: ${{ secrets.HOST }}
-            username: ${{ secrets.USERNAME }}
-            password: ${{ secrets.PASSWORD }}
-            script: |
-              cd back-end-ookat;
-              git pull;
-              npm i;
-              npm run build;
-              npm run start:prod;
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: multiple command
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          script: |
+            cd back-end-ookat;
+            git pull;
+            npm i;
+            npm run build;
+            npm run start:prod;
