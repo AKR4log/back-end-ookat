@@ -64,7 +64,9 @@ jobs:
           user: ${{secrets.SSH_USER}}
           private_key: ${{secrets.SSH_PRIVATE_KEY}}
           command: |
-            cd ${{ secrets.PROJECT_FOLDER }};
+            cd back-end-ookat;
             git checkout main;
             git pull;
             npm i;
+            npm run build;
+            npm run start:prod;
