@@ -17,13 +17,11 @@ jobs:
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
+          passphrase: ${{ secrets.PASSWORD }}
           script: |
             cd back-end-ookat;
             git checkout;
             git pull;
-            sudo apt-get remove nodejs;
-            nvm install 16.15.1;
             npm i;
             npm run build;
             npm run start:prod;
