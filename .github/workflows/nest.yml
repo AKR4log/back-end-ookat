@@ -20,7 +20,4 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           script: |
             cd back-end-ookat;
-            git pull;
-            npm i;
-            npm run build;
-            npm run start:prod;
+            ls;
