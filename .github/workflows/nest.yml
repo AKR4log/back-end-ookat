@@ -20,4 +20,7 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           script: |
             cd back-end-ookat;
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash;
+            chmod +x ~/.nvm/nvm.sh;
+            source ~/.bashrc;
             npm run start:prod;
