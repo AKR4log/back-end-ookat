@@ -20,4 +20,4 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           script: |
             cd back-end-ookat;
-            ls;
+            npm run start:prod;
