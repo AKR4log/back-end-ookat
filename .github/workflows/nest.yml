@@ -22,6 +22,4 @@ jobs:
             cd back-end-ookat;
             git checkout;
             git pull;
-            npm i;
-            npm run build;
-            npm run start:prod;
+            node -v;
