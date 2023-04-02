@@ -22,6 +22,8 @@ jobs:
             cd back-end-ookat;
             git checkout;
             git pull;
+            sudo apt-get remove nodejs;
+            nvm install 16.15.1;
             npm i;
             npm run build;
             npm run start:prod;
