@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String    @id @default(uuid()) @db.Uuid
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt() @map("updated_at")
+  phone      String    @unique @default("")
+  name       String    
+  avatarPath String    @default("/uploads/default-avatar.png") @map("avatar_path")
+  orders     Order[]
+  reviews    Review[]
+  favorites  Product[]
+}
+
+model Product {
+  id          String      @id @default(uuid()) @db.Uuid
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt() @map("updated_at")
+  name        String      @unique
+  slug        String      @unique
+  description String
+  price       Int
+  images      String[]
+  orderItems  OrderItem[]
+  reviews     Review[]
+  category    Category    @relation(fields: [categoryId], references: [id])
+  categoryId  String      @map("category_id") @db.Uuid
+  user        User?       @relation(fields: [userId], references: [id])
+  userId      String?     @map("user_id") @db.Uuid
+}
+
+model Category {
+  id        String    @id @default(uuid()) @db.Uuid
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt() @map("updated_at")
+  name      String    @unique
+  products  Product[]
+}
+
+model Review {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt() @map("updated_at")
+  rating    Int
+  text      String
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?  @map("user_id") @db.Uuid
+  product   Product? @relation(fields: [productId], references: [id])
+  productId String?  @map("product_id") @db.Uuid
+}
+
+model Order {
+  id        String      @id @default(uuid()) @db.Uuid
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt() @map("updated_at")
+  status    OrderStatus @default(PENDING)
+  items     OrderItem[]
+  user      User?       @relation(fields: [userId], references: [id])
+  userId    String?     @map("user_id") @db.Uuid
+}
+
+model OrderItem {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt() @map("updated_at")
+  quantity  Int
+  price     Int
+  order     Order?   @relation(fields: [orderId], references: [id])
+  orderId   String?  @map("order_id") @db.Uuid
+  product   Product? @relation(fields: [productId], references: [id])
+  productId String?  @map("product_id") @db.Uuid
+}
+
+enum OrderStatus {
+  PENDING
+  PAYED
+  SHIPPED
+  DELIVERED
+}
