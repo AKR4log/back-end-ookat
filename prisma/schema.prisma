@@ -14,7 +14,7 @@ model User {
   id         String    @id @default(uuid()) @db.Uuid
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime  @updatedAt() @map("updated_at")
-  phone      String    @unique @default("")
+  phone      String    @unique
   name       String    
   avatarPath String    @default("/uploads/default-avatar.png") @map("avatar_path")
   orders     Order[]
@@ -26,8 +26,7 @@ model Product {
   id          String      @id @default(uuid()) @db.Uuid
   createdAt   DateTime    @default(now()) @map("created_at")
   updatedAt   DateTime    @updatedAt() @map("updated_at")
-  name        String      @unique
-  slug        String      @unique
+  name        String      
   description String
   price       Int
   images      String[]

@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
 import {
-	BadRequestException,
 	UnauthorizedException
 } from '@nestjs/common/exceptions'
 import { ConfigService } from '@nestjs/config'
@@ -20,45 +19,11 @@ export class AuthService {
 		private config: ConfigService
 	) {}
 
-	// async login(dto: AuthDto) {
-	// 	const user = await this.validateUser(dto)
-	// 	const tokens = await this.issueTokens(user.id.toString())
-
-	// 	return {
-	// 		user: this.returnFields(user),
-	// 		...tokens
-	// 	}
-	// }
-
 	async getNewTokens(dto: RefreshTokenDto) {
 		const result = await this.jwtService.verifyAsync(dto.refreshToken)
 		if (!result) throw new UnauthorizedException('Invalid refresh token')
 
 		const user = await this.prisma.user.findUnique({ where: { id: result.id } })
-		const tokens = await this.issueTokens(user.id.toString())
-
-		return {
-			user: this.returnFields(user),
-			...tokens
-		}
-	}
-
-	async register(phone: string) {
-		const oldUser = await this.prisma.user.findUnique({
-			where: {
-				phone: phone
-			}
-		})
-
-		if (oldUser) throw new BadRequestException('User already exists')
-
-		const user = await this.prisma.user.create({
-			data: {
-				phone: phone,
-				name: ''
-			}
-		})
-
 		const tokens = await this.issueTokens(user.id.toString())
 
 		return {

@@ -16,13 +16,6 @@ import { RefreshTokenDto } from './dto/refresh-token.dto'
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
-	// @UsePipes(new ValidationPipe())
-	// @HttpCode(200)
-	// @Post('login')
-	// async login(@Body() dto: AuthDto) {
-	// 	return this.authService.login(dto)
-	// }
-
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)
 	@Auth()
@@ -30,13 +23,6 @@ export class AuthController {
 	async getNewTokens(@Body() dto: RefreshTokenDto) {
 		return this.authService.getNewTokens(dto)
 	}
-
-	// @UsePipes(new ValidationPipe())
-	// @HttpCode(200)
-	// @Post('register')
-	// async register(@Body() dto: AuthDto) {
-	// 	return this.authService.register(dto)
-	// }
 
 	@UsePipes(new ValidationPipe())
 	@Post('push-sms')

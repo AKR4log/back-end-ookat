@@ -1,7 +1,4 @@
-import {
-	Injectable,
-	NotFoundException
-} from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { PrismaService } from 'src/prisma.service'
 import { userDro } from './user.dro'
@@ -20,8 +17,7 @@ export class UserService {
 						id: true,
 						name: true,
 						price: true,
-						images: true,
-						slug: true
+						images: true
 					}
 				},
 				...selectObj

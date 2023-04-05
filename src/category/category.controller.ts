@@ -1,16 +1,15 @@
 import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    HttpCode,
-    Param,
-    Post,
-    Put,
-    UsePipes,
-    ValidationPipe
+	Body,
+	Controller,
+	Delete,
+	Get,
+	HttpCode,
+	Param,
+	Post,
+	Put,
+	UsePipes,
+	ValidationPipe
 } from '@nestjs/common'
-import { Auth } from 'src/auth/decorators/auth.decorator'
 import { CategoryService } from './category.service'
 import { CategoryDto } from './dto/category.dto'
 
@@ -24,7 +23,6 @@ export class CategoryController {
 	}
 
 	@Get(':id')
-	@Auth()
 	async getById(@Param('id') id: string) {
 		return this.categoryService.byId(id)
 	}
