@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import {
-	UnauthorizedException
-} from '@nestjs/common/exceptions'
+import { UnauthorizedException } from '@nestjs/common/exceptions'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { User } from '@prisma/client'
@@ -34,30 +32,36 @@ export class AuthService {
 
 	async sendCode(dto: PushSmsDto) {
 		try {
-			const token = this.config.get('PUSHSMS_TOKEN')
-			const sender = this.config.get('PUSHSMS_SENDER')
-			const code = this.generateCode()
-			await axios.post(
-				'https://api.pushsms.ru/api/v1/delivery',
+			const token = this.config.get('SMSPRO_TOKEN')
+			const transaction_id = this.jwtService.sign(
+				{ phone: dto.phone },
 				{
-					text: code,
-					phone: dto.phone,
-					sender_name: sender
+					expiresIn: '1h'
+				}
+			)
+			const req = await axios.post(
+				'https://smspro.nikita.kg/api/otp/send',
+				{
+					transaction_id: Math.random().toString(16).substr(2, 8),
+					phone: dto.phone
 				},
 				{
 					headers: {
-						Authorization: 'Bearer ' + token
+						'X-API-KEY': token
 					}
 				}
 			)
-			return {
-				token: this.jwtService.sign(
-					{ code: code, phone: dto.phone },
-					{
-						expiresIn: '1h'
-					}
-				)
-			}
+
+			const data = req.data
+
+			const reqToken = this.jwtService.sign(
+				{ token: data.token, phone: dto.phone },
+				{
+					expiresIn: '1h'
+				}
+			)
+
+			return { token: reqToken }
 		} catch (e) {
 			return { error: e }
 		}
@@ -66,8 +70,22 @@ export class AuthService {
 	async confirmCode(dto: ConfirmSmsDto) {
 		try {
 			const tokenVerify = this.jwtService.verify(dto.token)
+			const token = this.config.get('SMSPRO_TOKEN')
 
-			if (tokenVerify.code === dto.code) {
+			const req = await axios.post(
+				'https://smspro.nikita.kg/api/otp/verify',
+				{
+					token: tokenVerify.token,
+					code: dto.code
+				},
+				{
+					headers: {
+						'X-API-KEY': token
+					}
+				}
+			)
+			const res = req.data
+			if (res.status == 0) {
 				const oldUser = await this.prisma.user.findUnique({
 					where: {
 						phone: tokenVerify.phone
@@ -98,7 +116,7 @@ export class AuthService {
 					...tokens
 				}
 			}
-			return { error: 'Invalid code' }
+			return { req: req.data }
 		} catch (e) {
 			return { error: e }
 		}
