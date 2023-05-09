@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { Auth } from './decorators/auth.decorator'
+import { AuthAdmDto } from './dto/auth-adm.dto'
 import { ConfirmSmsDto } from './dto/confrim-sms.dto'
 import { PushSmsDto } from './dto/push-sms-dto'
 import { RefreshTokenDto } from './dto/refresh-token.dto'
@@ -28,6 +29,12 @@ export class AuthController {
 	@Post('push-sms')
 	async pushSMS(@Body() dto: PushSmsDto) {
 		return this.authService.sendCode(dto)
+	}
+
+	@UsePipes(new ValidationPipe())
+	@Post('login-adm')
+	async login(@Body() dto: AuthAdmDto) {
+		return this.authService.loginAdm(dto)
 	}
 
 	@UsePipes(new ValidationPipe())

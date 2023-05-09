@@ -1,10 +1,10 @@
 import {
-  Controller,
-  HttpCode,
-  Post,
-  Query,
-  UploadedFile,
-  UseInterceptors
+	Controller,
+	HttpCode,
+	Post,
+	Query,
+	UploadedFile,
+	UseInterceptors
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { User } from '@prisma/client'

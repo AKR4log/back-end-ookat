@@ -5,12 +5,12 @@ export const productDro: Prisma.ProductSelect = {
 	name: true,
     description: true,
 	images: true,
-	price: true,
-	user: {
-		select: {
-			id: true,
-			name: true,
-			avatarPath: true
-		}
-	}
+	// price: true,
+	// user: {
+	// 	select: {
+	// 		id: true,
+	// 		name: true,
+	// 		avatarPath: true
+	// 	}
+	// }
 }

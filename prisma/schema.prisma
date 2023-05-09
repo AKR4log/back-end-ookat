@@ -11,39 +11,105 @@ datasource db {
 }
 
 model User {
-  id         String    @id @default(uuid()) @db.Uuid
-  createdAt  DateTime  @default(now()) @map("created_at")
-  updatedAt  DateTime  @updatedAt() @map("updated_at")
-  phone      String    @unique
-  name       String    
-  avatarPath String    @default("/uploads/default-avatar.png") @map("avatar_path")
+  id         String     @id @default(uuid()) @db.Uuid
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @updatedAt() @map("updated_at")
+  role       Role[]     @default([CLIENT])
+  phone      String     @unique
+  name       String
+  password   String
+  email      String?    @unique
+  avatarPath String     @default("https://767929.selcdn.ru/images/default/default-profile.jpg") @map("avatar_path")
   orders     Order[]
   reviews    Review[]
-  favorites  Product[]
+  favorites  Favorite[]
+  seller     Seller?    @relation(fields: [sellerId], references: [id])
+  sellerId   String?    @map("seller_id") @db.Uuid
+}
+
+model Favorite {
+  id        String   @id @default(uuid()) @db.Uuid
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?  @map("user_id") @db.Uuid
+  product   Product? @relation(fields: [productId], references: [id])
+  productId String?  @map("product_id") @db.Uuid
+}
+
+model Seller {
+  id         String       @id @default(uuid()) @db.Uuid
+  createdAt  DateTime     @default(now()) @map("created_at")
+  updatedAt  DateTime     @updatedAt() @map("updated_at")
+  name       String       @unique
+  rating     Int
+  status     SellerStatus @default(ONCHECK)
+  avaterPath String       @map("avatar_path")
+  products   Product[]
+  user       User[]
 }
 
 model Product {
-  id          String      @id @default(uuid()) @db.Uuid
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt() @map("updated_at")
-  name        String      
-  description String
-  price       Int
-  images      String[]
-  orderItems  OrderItem[]
-  reviews     Review[]
-  category    Category    @relation(fields: [categoryId], references: [id])
-  categoryId  String      @map("category_id") @db.Uuid
-  user        User?       @relation(fields: [userId], references: [id])
-  userId      String?     @map("user_id") @db.Uuid
+  id            String           @id @default(uuid()) @db.Uuid
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt() @map("updated_at")
+  name          String
+  description   String
+  images        String[]
+  variants      ProductVariant[]
+  orderItems    OrderItem[]
+  reviews       Review[]
+  favorites     Favorite[]
+  status        ProductStatus    @default(PUBLIC)
+  category      Category         @relation(fields: [categoryId], references: [id])
+  categoryId    String           @map("category_id") @db.Uuid
+  brand         Brand?           @relation(fields: [brandId], references: [id])
+  brandId       String?          @map("brand_id") @db.Uuid
+  seller        Seller?          @relation(fields: [sellerId], references: [id])
+  sellerId      String?          @map("seller_id") @db.Uuid
+  subCategory   SubCategory?     @relation(fields: [subCategoryId], references: [id])
+  subCategoryId String?          @map("sub_category_id") @db.Uuid
+}
+
+model ProductVariant {
+  id        String   @id @default(uuid()) @db.Uuid
+  size      String?
+  color     String?
+  material  String?
+  price     Int?
+  product   Product? @relation(fields: [productId], references: [id])
+  productId String?  @map("product_id") @db.Uuid
 }
 
 model Category {
-  id        String    @id @default(uuid()) @db.Uuid
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt() @map("updated_at")
-  name      String    @unique
-  products  Product[]
+  id          String        @id @default(uuid()) @db.Uuid
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt() @map("updated_at")
+  name        String        @unique
+  avatarPath  String        @map("avatar_path")
+  subCategory SubCategory[]
+  products    Product[]
+}
+
+model SubCategory {
+  id         String    @id @default(uuid()) @db.Uuid
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt() @map("updated_at")
+  name       String    @unique
+  avatarPath String    @map("avatar_path")
+  products   Product[]
+  category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId String?   @map("category_id") @db.Uuid
+  brands     Brand[]
+}
+
+model Brand {
+  id            String       @id @default(uuid()) @db.Uuid
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt() @map("updated_at")
+  name          String       @unique
+  avatarPath    String       @map("avatar_path")
+  products      Product[]
+  subCategory   SubCategory? @relation(fields: [subCategoryId], references: [id])
+  subCategoryId String?      @map("sub_category_id") @db.Uuid
 }
 
 model Review {
@@ -85,4 +151,26 @@ enum OrderStatus {
   PAYED
   SHIPPED
   DELIVERED
+}
+
+enum SellerStatus {
+  ONCHECK
+  CANCELLED
+  APPROVED
+  DEFICIENT
+}
+
+enum ProductStatus {
+  PRIVATE
+  PUBLIC
+}
+
+enum Role {
+  SUPERADMIN
+  ADMIN
+  CLIENT
+  OPERATOR
+  CONTENTMANAGER
+  ACCOUNTANT
+  SELLER
 }

@@ -25,9 +25,9 @@ export class ProductService {
 				data: {
 					name: dto.name,
 					categoryId: dto.categoryId,
-					price: dto.price,
-					description: dto.description,
-					userId: user.id
+					// price: dto.price,
+					description: dto.description
+					// userId: user.id
 				}
 			})
 

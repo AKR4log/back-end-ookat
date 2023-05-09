@@ -2,6 +2,7 @@ import {
 	Body,
 	Controller,
 	Delete,
+	ForbiddenException,
 	Get,
 	HttpCode,
 	Param,
@@ -36,21 +37,31 @@ export class ProductController {
 	@Auth()
 	@Post()
 	async createProduct(@CurrentUser() user: User, @Body() dro: ProductDto) {
-		return this.productService.createProduct(user, dro)
+		if (user.role.includes('SELLER') || user.role.includes('ADMIN')) {
+			return this.productService.createProduct(user, dro)
+		} else throw new ForbiddenException()
 	}
 
 	@UsePipes(new ValidationPipe())
 	@HttpCode(201)
 	@Auth()
 	@Put(':id')
-	async updateProduct(@Param('id') id: string, @Body() dto: UpdateProductDto) {
-		return this.productService.updateProduct(id, dto)
+	async updateProduct(
+		@CurrentUser() user: User,
+		@Param('id') id: string,
+		@Body() dto: UpdateProductDto
+	) {
+		if (user.role.includes('SELLER') || user.role.includes('ADMIN')) {
+			return this.productService.updateProduct(id, dto)
+		} else throw new ForbiddenException()
 	}
 
 	@HttpCode(200)
 	@Auth()
 	@Delete(':id')
-	async deleteProduct(@Param('id') id: string) {
-		return this.productService.deteleProduct(id)
+	async deleteProduct(@CurrentUser() user: User, @Param('id') id: string) {
+		if (user.role.includes('SELLER') || user.role.includes('ADMIN')) {
+			return this.productService.deteleProduct(id)
+		} else throw new ForbiddenException()
 	}
 }

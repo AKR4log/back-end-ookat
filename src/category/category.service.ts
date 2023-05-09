@@ -22,6 +22,10 @@ export class CategoryService {
 		return this.prisma.category.create({ data: { ...dto } })
 	}
 
+	async createSubCategory(dto: CategoryDto) {
+		return this.prisma.subCategory.create({ data: { ...dto } })
+	}
+
 	async updateCategory(id: string, dto: CategoryDto) {
 		return this.prisma.category.update({ where: { id: id }, data: { ...dto } })
 	}

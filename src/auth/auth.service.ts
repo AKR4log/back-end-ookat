@@ -1,10 +1,15 @@
 import { Injectable } from '@nestjs/common'
-import { UnauthorizedException } from '@nestjs/common/exceptions'
+import {
+	NotFoundException,
+	UnauthorizedException
+} from '@nestjs/common/exceptions'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { User } from '@prisma/client'
+import { verify } from 'argon2'
 import axios from 'axios'
 import { PrismaService } from 'src/prisma.service'
+import { AuthAdmDto } from './dto/auth-adm.dto'
 import { ConfirmSmsDto } from './dto/confrim-sms.dto'
 import { PushSmsDto } from './dto/push-sms-dto'
 import { RefreshTokenDto } from './dto/refresh-token.dto'
@@ -22,7 +27,17 @@ export class AuthService {
 		if (!result) throw new UnauthorizedException('Invalid refresh token')
 
 		const user = await this.prisma.user.findUnique({ where: { id: result.id } })
-		const tokens = await this.issueTokens(user.id.toString())
+		const tokens = await this.issueTokens(user)
+
+		return {
+			user: this.returnFields(user),
+			...tokens
+		}
+	}
+
+	async loginAdm(dto: AuthAdmDto) {
+		const user = await this.validateUser(dto)
+		const tokens = await this.issueTokens(user)
 
 		return {
 			user: this.returnFields(user),
@@ -33,14 +48,9 @@ export class AuthService {
 	async sendCode(dto: PushSmsDto) {
 		try {
 			const token = this.config.get('SMSPRO_TOKEN')
-			const transaction_id = this.jwtService.sign(
-				{ phone: dto.phone },
-				{
-					expiresIn: '1h'
-				}
-			)
+			const link = this.config.get('SMSPRO_LINK')
 			const req = await axios.post(
-				'https://smspro.nikita.kg/api/otp/send',
+				link,
 				{
 					transaction_id: Math.random().toString(16).substr(2, 8),
 					phone: dto.phone
@@ -93,7 +103,7 @@ export class AuthService {
 				})
 
 				if (oldUser) {
-					const tokens = await this.issueTokens(oldUser.id.toString())
+					const tokens = await this.issueTokens(oldUser)
 
 					return {
 						user: this.returnFields(oldUser),
@@ -104,11 +114,12 @@ export class AuthService {
 				const user = await this.prisma.user.create({
 					data: {
 						phone: tokenVerify.phone,
-						name: ''
+						name: null,
+						password: null
 					}
 				})
 
-				const tokens = await this.issueTokens(user.id.toString())
+				const tokens = await this.issueTokens(user)
 
 				return {
 					stutus: 'Created successfully',
@@ -122,8 +133,8 @@ export class AuthService {
 		}
 	}
 
-	private async issueTokens(userId: string) {
-		const data = { id: userId }
+	private async issueTokens(user: User) {
+		const data = { ...user }
 
 		const accessToken = this.jwtService.sign(data, {
 			expiresIn: '1h'
@@ -142,13 +153,17 @@ export class AuthService {
 		}
 	}
 
-	private generateCode(): string {
-		const digits = '0123456789'
-		let code = ''
-		for (let i = 0; i < 5; i++) {
-			const index = Math.floor(Math.random() * digits.length)
-			code += digits.charAt(index)
-		}
-		return code
+	private async validateUser(dto: AuthAdmDto) {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				email: dto.email
+			}
+		})
+		if (!user) throw new NotFoundException('User not found')
+
+		const isValid = await verify(user.password, dto.password)
+		if (!isValid) throw new UnauthorizedException('Invalid credentials')
+
+		return user
 	}
 }

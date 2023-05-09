@@ -15,9 +15,9 @@ export class UserService {
 				favorites: {
 					select: {
 						id: true,
-						name: true,
-						price: true,
-						images: true
+						// name: true,
+						// price: true,
+						// images: true
 					}
 				},
 				...selectObj

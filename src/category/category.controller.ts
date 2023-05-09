@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common'
 import { CategoryService } from './category.service'
 import { CategoryDto } from './dto/category.dto'
+import { SubCategoryDto } from './dto/subcategory.dto'
 
 @Controller('category')
 export class CategoryController {
@@ -38,6 +39,13 @@ export class CategoryController {
 	@HttpCode(201)
 	@Post()
 	async createCategory(@Body() dro: CategoryDto) {
+		return this.categoryService.createCategory(dro)
+	}
+
+	@UsePipes(new ValidationPipe())
+	@HttpCode(201)
+	@Post('/sub-category')
+	async createSubCategory(@Body() dro: SubCategoryDto) {
 		return this.categoryService.createCategory(dro)
 	}
 
